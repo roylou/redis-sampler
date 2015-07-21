@@ -46,6 +46,7 @@ class RedisSampler
         @set_card = {}
         @set_elesize = {}
         @string_elesize = {}
+        @key_prefix = {}
     end
 
     def incr_freq_table(hash,item)
@@ -56,6 +57,7 @@ class RedisSampler
     def sample
         @samplesize.times {
             k = @redis.randomkey
+            incr_freq_table(@key_prefix,k.split(':')[0])
             p = @redis.pipelined {
                 @redis.type(k)
                 @redis.ttl(k)
@@ -195,6 +197,7 @@ class RedisSampler
     def stats
         render_freq_table("Types",@types)
         render_freq_table("Expires",@expires)
+        render_freq_table("Prefix",@key_prefix)
         render_avg(@expires)
         render_power_table(@expires)
         puts "\nNote: 'unknown' expire means keys with no expire"
