@@ -243,12 +243,12 @@ class RedisSampler
 end
 
 if ARGV.length != 4
-    puts "Usage: redis-sampler.rb <host> <port> <dbnum> <sample_size>"
+    puts "Usage: redis-sampler.rb <host> <port> <password> <dbnum> <sample_size>"
     exit 1
 end
 
-redis = Redis.new(:host => ARGV[0], :port => ARGV[1].to_i, :db => ARGV[2].to_i)
-sampler = RedisSampler.new(redis,ARGV[3].to_i)
-puts "Sampling #{ARGV[0]}:#{ARGV[1]} DB:#{ARGV[2]} with #{ARGV[3]} RANDOMKEYS"
+redis = Redis.new(:host => ARGV[0], :port => ARGV[1].to_i, :password => ARGV[2], :db => ARGV[3].to_i)
+sampler = RedisSampler.new(redis,ARGV[4].to_i)
+puts "Sampling #{ARGV[0]}:#{ARGV[1]} Password:#{ARGV[2]} DB:#{ARGV[3]} with #{ARGV[4]} RANDOMKEYS"
 sampler.sample
 sampler.stats
