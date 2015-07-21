@@ -242,7 +242,7 @@ class RedisSampler
     end
 end
 
-if ARGV.length != 4
+if ARGV.length != 5
     puts "Usage: redis-sampler.rb <host> <port> <password> <dbnum> <sample_size>"
     exit 1
 end
