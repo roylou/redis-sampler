@@ -47,6 +47,7 @@ class RedisSampler
         @set_elesize = {}
         @string_elesize = {}
         @key_prefix = {}
+        @string_key_size = {}
     end
 
     def incr_freq_table(hash,item)
@@ -54,10 +55,16 @@ class RedisSampler
         hash[item] += 1
     end
 
+    def incr_freq_table_val(hash,item,val)
+        hash[item] = 0 if !hash[item]
+        hash[item] += val
+    end
+
     def sample
         @samplesize.times {
             k = @redis.randomkey
-            incr_freq_table(@key_prefix,k.split(':')[0])
+            k_pfx = k.split(':')[0]
+            incr_freq_table(@key_prefix,k_pfx)
             p = @redis.pipelined {
                 @redis.type(k)
                 @redis.ttl(k)
@@ -111,6 +118,7 @@ class RedisSampler
                 end
             when 'string'
                 incr_freq_table(@string_elesize,@redis.strlen(k))
+                incr_freq_table_val(@string_key_size,k_pfx,@redis.strlen(k))
             end
         }
     end
@@ -205,6 +213,7 @@ class RedisSampler
             render_freq_table("Strings, size of values",@string_elesize)
             render_avg(@string_elesize)
             render_power_table(@string_elesize)
+            render_freq_table("Strings, size of values, by key prefix",@string_key_size)
         end
         if @list_len.length != 0
             render_freq_table("Lists, number of elements",@list_len)
